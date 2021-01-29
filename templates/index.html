@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Корея Кино</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">   
+	<link href="{{ url_for('static', filename='css/templatemo-style.css') }}" rel="stylesheet" />
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans:400" rel="stylesheet" /> 
+</head>
+<body> 
+
+	<div class="container">
+		<main>
+
+			<header class="row tm-welcome-section">
+				<h2 class="col-12 text-center">найдено фильмов: {{ response['total_results'] }}</h2>
+				<p class="col-12 text-center">страниц: {{ response['total_pages'] }}</p>
+			</header>
+
+			<div class="tm-paging-links">
+				<nav>
+					<ul>
+						{% if page > 1 %}
+						<li class="tm-paging-item"><a style="text-decoration: none;" href="{{ url_for('index', genre=genre, year=year, page=page-1) }}" class="tm-paging-link">❮</a></li>
+						{% endif %}
+						{% if page < response['total_pages'] %}
+						<li class="tm-paging-item"><a style="text-decoration: none;" href="{{ url_for('index', genre=genre, year=year, page=page+1) }}" class="tm-paging-link">❯</a></li>
+						{% endif %}
+						<li class="tm-paging-item">
+							<input style="font-size: 15px;" type="number" id="myPage" min="1" max="{{ response['total_pages'] }}" step="1" value="{{ page }}" class="form-control text-center" onkeydown="ChangePageUrl(this)"/>
+
+							<input type="hidden" id="myUrl" value="{{ url_for(request.endpoint) }}"/>
+							<input type="hidden" id="myGenre" value="{{ genre }}"/>
+							<input type="hidden" id="myYear" value="{{ year }}"/>
+						</li>
+					</ul>
+				</nav>
+			</div>
+
+			<!-- Gallery -->
+			<div class="row tm-gallery">
+				<div id="tm-gallery-page-pizza" class="tm-gallery-page">
+					{% for element in response['results'] %}
+					<article class="col-lg-3 col-md-4 col-sm-6 col-12 tm-gallery-item">
+						<figure>
+							<!-- Trigger the modal with a <a/> -->
+							<a href="" data-toggle="modal" data-target="#{{ element['id'] }}">
+							{% if element['poster_path'] %}
+							<img src="https://image.tmdb.org/t/p/w500/{{ element['poster_path'] }}" width="250" height="370" alt="Image" />
+							{% else %}
+							<img src="{{  url_for('static', filename='img/no-image.png') }}" width="250" height="370" alt="Image" />
+							{% endif %}
+							</a>
+							<figcaption><br>
+								<h4><b>{{ element['title'] }}</b></h4>
+								<p style="font-size:12px;">
+								{% for id in element['genre_ids'] %}
+								{{ genres_dict[id] }}
+								{% endfor %}
+								{% if element['release_date'] %}
+								<p style="font-size:12px;">{{ element['release_date'][:4] }}</p>
+								{% endif %}
+								</p><br><br>
+							</figcaption>
+						</figure>
+					</article>
+					{% endfor %}
+				</div>
+			</div>
+
+			<div class="tm-paging-links">
+				<nav>
+					<ul>
+						{% if page > 1 %}
+						<li class="tm-paging-item"><a style="text-decoration: none;" href="{{ url_for('index', genre=genre, year=year, page=page-1) }}" class="tm-paging-link">❮</a></li>
+						{% endif %}
+						{% if page < response['total_pages'] %}
+						<li class="tm-paging-item"><a style="text-decoration: none;" href="{{ url_for('index', genre=genre, year=year, page=page+1) }}" class="tm-paging-link">❯</a></li>
+						{% endif %}
+					</ul>
+				</nav>
+			</div>
+
+			{% for element in response['results'] %}
+			<!-- Modal -->
+			<div id="{{ element['id'] }}" class="modal fade" role="dialog">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<a class="tm-paging-link close" data-dismiss="modal">&#10007;</a>
+							<h3 class="modal-title text-center"><strong>{{ element['title'] }}</strong></h3><br>
+							{% if element['poster_path'] %}
+							<img align="left" src="https://image.tmdb.org/t/p/w500/{{ element['poster_path'] }}" class="img-fluid tm-history-img" width="350" height="470" alt="Image" />
+							{% else %}
+							<img align="left" src="{{  url_for('static', filename='img/no-image.png') }}" 
+							class="img-fluid tm-history-img" width="350" height="470" alt="Image" />
+							{% endif %}
+							<strong><br><br><br>
+								<span style="margin-left:20px;">оригинальное название:</span><br>
+								<span style="margin-left:20px;">{{ element['original_title'] }}</span><br><br>
+								{% for id in element['genre_ids'] %}
+								<span style="margin-left:20px;">{{ genres_dict[id] }}</span><br>
+								{% endfor %}<br>
+								<span style="margin-left:20px;">
+								средняя оценка: {{ element['vote_average'] }}
+								</span><br><br>
+								<span style="margin-left:20px;">
+								дата выхода: {{ element['release_date'] }}
+								</span>
+							</strong>
+						</div>
+      					<div class="col-12">
+      						<br><strong>
+      						<p class="modal-title">{{ element['overview'] }}</p>
+      						</strong><br>
+      					</div>
+      				</div>
+  				</div>
+			</div>
+			{% endfor %}
+
+			<div class="tm-paging-links">
+				<nav>
+					<ul>
+						<span style="font-size: 20px;" class="tm-info-title tm-text-success">Год</span>
+						<li class="tm-paging-item">
+							<input style="font-size: 15px;" type="number" id ="MyYear" min="1935" max="2030" step="1"
+							value="{{ year }}" class='form-control text-center' onkeydown="ChangeYearUrl(this)"/>
+							<input type="hidden" id="MyUrl" value="{{ url_for(request.endpoint) }}"/>
+							<input type="hidden" id="MyGenre" value="{{ genre }}/"/>
+							<input type="hidden" id="MyPage" value="/1"/>
+						</li>
+						<li class="tm-paging-item">
+							<a style="text-decoration: none;" class="tm-paging-link" href="{{ url_for('index') }}">Сбросить</a>
+						</li>
+					</ul>
+				</nav>
+				<nav>
+					<ul>
+						{% for genre_id in genres_dict %}
+						<li class="tm-paging-item">
+						{% if genre_id==genre %}
+							<a style="text-decoration: none;" class="tm-paging-link active" href="{{ url_for('index', genre=genre_id, year=year, page=1) }}">{{ genres_dict[genre_id] }}</a>
+						{% else %}
+							<a style="text-decoration: none;" class="tm-paging-link" href="{{ url_for('index', genre=genre_id, year=year, page=1) }}">{{ genres_dict[genre_id] }}</a>
+						{% endif %}
+						</li>
+						{% endfor %}
+					</ul>
+				</nav>					
+			</div>
+
+		</main>
+
+		<footer class="tm-footer text-center">
+			<p>Все фильмы, их оценки и данные предоставлены
+				<a target="_blank" href="https://www.themoviedb.org/">
+					<img width="300px" src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_long_2-9665a76b1ae401a510ec1e0ca40ddcb3b0cfe45f1d51b77a308fea0845885648.svg"/>
+				</a>
+			</p>
+		</footer>
+	</div>
+	<script src="{{ url_for('static', filename = 'js/jquery.min.js') }}"></script>
+	<script src="{{ url_for('static', filename = 'js/parallax.min.js') }}"></script>
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+	<script>
+		$(document).ready(function(){
+			var acc = document.getElementsByClassName("accordion");
+			var i;
+			
+			for (i = 0; i < acc.length; i++) {
+			  acc[i].addEventListener("click", function() {
+			    this.classList.toggle("active");
+			    var panel = this.nextElementSibling;
+			    if (panel.style.maxHeight) {
+			      panel.style.maxHeight = null;
+			    } else {
+			      panel.style.maxHeight = panel.scrollHeight + "px";
+			    }
+			  });
+			}	
+		});
+	</script>
+	<script>
+		function ChangeYearUrl(ele) {
+			if(event.key === 'Enter') {
+				// Selecting the input element and get its value
+				var yearVal =document.getElementById("MyYear").value;
+        		var urlVal = document.getElementById("MyUrl").value;
+				var genreVal = document.getElementById("MyGenre").value;
+				var pageVal = document.getElementById("MyPage").value;
+		   		// go to url
+		   		window.location.href = urlVal+genreVal+"/"+yearVal+"/"+pageVal;
+		   	}	
+		}
+	</script>
+	<script>
+		function ChangePageUrl(ele) {
+			if(event.key === 'Enter') {
+				// Selecting the input element and get its value
+				var pageVal = document.getElementById("myPage").value;
+				var urlVal = document.getElementById("myUrl").value;
+				var genreVal = document.getElementById("myGenre").value;
+				var yearVal =document.getElementById("myYear").value;
+		   		// go to url
+		   		window.location.href = urlVal+genreVal+"/"+yearVal+"/"+pageVal;
+		   	}
+		}
+	</script>
+</body>
+</html>
