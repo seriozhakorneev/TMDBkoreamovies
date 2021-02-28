@@ -2,7 +2,7 @@ from flask import Flask, render_template, abort
 import requests
 import time
 
-api_key = '1fc649858151a2c4dd43a79d6ac7266b'
+api_key = '48d5be8717cad4fd30d4ec5749fa2c7e'
 app = Flask(__name__)
 
 genres_dict = { 28 : "Боевик", 12 : "Приключения", 16 : "Анимация",
