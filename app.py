@@ -11,13 +11,13 @@ genres_dict = { 28 : "Боевик", 12 : "Приключения", 16 : "Ани
 10402 : "Музыкальный", 9648 : "Детектив", 10749 : "Мелодрама", 878 : "Научная Фантастика",
 10770 : "TV Movie", 53 : "Триллер", 10752 : "Военный", 37 : "Вестерн"}
 
-
 def make_request(api_key, genre, year, page):
 
 	api = f'https://api.themoviedb.org/3/discover/movie?api_key={api_key}&language=ru&sort_by=popularity.desc&page={page}&with_original_language=ko&include_video'
 
 	if genre:
 		api += f'&with_genres={genre}'
+		
 	if year:
 		api += f'&primary_release_date.gte={year}-01-01&primary_release_date.lte={year}-12-31'
 
@@ -50,7 +50,6 @@ def index(genre, year, page):
 @app.errorhandler(404)
 def error(error):
 	return render_template('404.html'), 404
-
 
 if __name__ == '__main__':
 	app.run()
